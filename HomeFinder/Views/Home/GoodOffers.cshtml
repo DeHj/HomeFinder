@@ -1,0 +1,42 @@
+﻿@{
+    ViewData["Title"] = "Предложения для вас";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Предложения для вас</title>
+    <style>
+        .oneOffer {
+            background: #fff7f7;
+            outline: 1px solid #ffe1e1;
+        }
+        p {
+            margin: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <p>Предложения, удовлетворяющие вашим фильтрам и располагающиеся в домах, вами указанных:</p>
+    </div>
+    @foreach (var offer in ViewBag.AllOffers)
+    {
+    <div class="oneOffer">
+        <a href="@offer.Href">
+            <p>
+                @offer.Address
+            </p>
+            <p>
+                @foreach (var item in offer.Description)
+                {
+                    <br />
+                    @item
+                }
+            </p>
+        </a>
+    </div>
+    }
+
+</body>
+</html>

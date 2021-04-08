@@ -1,0 +1,48 @@
+﻿@{
+    ViewData["Title"] = "Работа с адресами";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Работа с адресами</title>
+</head>
+<body>
+    <div>
+        <h3>Форма добавления дома</h3>
+        <p>Для добавления дома заполните следующие поля:</p>
+        <form method="post" action="/Home/AddAddress">
+            <input type="hidden" value="@ViewBag.UserId" name="userId" />
+            <table>
+                <tr>
+                    <td>Улица:</td>
+                    <td><input type="text" name="street" /> </td>
+                </tr>
+                <tr>
+                    <td>Дом:</td>
+                    <td><input type="text" name="house" /></td>
+                </tr>
+                <tr>
+                    <td>Корпус:</td>
+                    <td><input type="number" name="building" min="0"/></td>
+                </tr>
+                <tr><td><input type="submit" value="Добавить" /> </td><td></td></tr>
+            </table>
+        </form>
+        </br>
+        <h3>Уже имеющиеся адреса в списке фильтров:</h3>    
+                @foreach (var address in ViewBag.Addresses)
+                {
+                <form method="post" action="/Home/DeleteAddress">
+                    <input type="hidden" value="@address.Item1.UserId" name="userId" />
+                    <input type="hidden" value="@address.Item1.AddressId" name="addressId" />
+                    <p>
+                        Адрес: @address.Item2
+                        <input type="submit" value="Удалить"/>
+                    </p>
+                </form>
+                }
+                
+    </div>
+</body>
+</html>

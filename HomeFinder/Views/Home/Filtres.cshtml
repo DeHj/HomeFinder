@@ -1,0 +1,37 @@
+﻿@{
+    ViewData["Title"] = "Настройка фильтров";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Настройка фильтров</title>
+</head>
+<body>
+    <form method="post" action="/Home/Filtres">
+        <input type="hidden" value="@ViewBag.UserId" name="userId" />
+        <table>
+            <tr>
+                <td><p>Укажите минимальную цену</p></td>
+                <td><input type="number" name="minCost" value="@ViewBag.MinCost" min="0"/> </td>
+            </tr>
+            <tr>
+                <td><p>Укажите максимальную цену:</p></td>
+                <td><input type="number" name="maxCost" value="@ViewBag.MaxCost" min="0"/> </td>
+            </tr>
+            <tr>
+                <td><p>Укажите минимальное количество комнат (0 комнат - студия) :</p></td>
+                <td><input type="number" name="minRoomCount" value="@ViewBag.MinRoomCount" min="0" max="9"/> </td>
+            </tr>
+            <tr>
+                <td><p>Укажите максимальное количество комнат:</p></td>
+                <td><input type="number" name="maxRoomCount" value="@ViewBag.MaxRoomCount" min="0" max="9"/> </td>
+            </tr>
+            <tr>
+                <td><input type="submit" value="Сохранить" /> </td>
+                <td></td>
+            </tr>
+        </table>
+    </form>
+</body>
+</html>

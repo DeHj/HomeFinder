@@ -1,0 +1,44 @@
+﻿@model IEnumerable<HomeFinder.Models.User>
+@*@model string*@
+@{
+    ViewData["Title"] = "Главная";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Поиск жилья</title>
+</head>
+<body>
+    @*<p>@Model</p>*@
+    @foreach (var user in Model)
+    {
+    <p>
+        
+        @user.UserId
+        @user.MinCost
+        @user.MaxCost
+        @user.MinRoomCount
+        @user.MaxRoomCount
+            
+        @*@address.AddressId
+        @address.UserId
+        @address.Value*@
+    </p>
+    }
+
+    @*@foreach (var offer in ViewBag.AllOffers)
+    {
+        <a href="@offer.Href">
+            <p>
+                @offer.Address
+            </p>
+            <p>
+                @offer.Description
+            </p>
+        </a>
+
+    }*@
+
+</body>
+</html>
