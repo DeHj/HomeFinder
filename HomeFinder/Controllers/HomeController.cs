@@ -11,13 +11,13 @@ namespace HomeFinder.Controllers
     public class HomeController : Controller
     {
         HomeContext db;
-        List<Parsers.Parser> parsers;
+        List<Parsers.IParser> parsers;
 
         public HomeController(HomeContext context)
         {
             db = context;
 
-            parsers = new List<Parsers.Parser>();
+            parsers = new List<Parsers.IParser>();
             parsers.Add(new Parsers.ParserDomofond());
         }
 
@@ -26,15 +26,14 @@ namespace HomeFinder.Controllers
         [HttpGet]
         public IActionResult Index(int? id)
         {
-
             return View(db.Users.ToList());
         }
 
+        
+        
         /// <summary>
         /// Формирование представления с формой настроек фильтров
         /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
         [HttpGet]
         public async Task<IActionResult> Filtres(int? id)
         {
@@ -51,15 +50,11 @@ namespace HomeFinder.Controllers
             return View();
         }
 
+        
+        
         /// <summary>
         /// Настройка фильтров пользователя
         /// </summary>
-        /// <param name="id"></param>
-        /// <param name="minCost"></param>
-        /// <param name="maxCost"></param>
-        /// <param name="minRoomCount"></param>
-        /// <param name="maxRoomCount"></param>
-        /// <returns></returns>
         [HttpPost]
         public IActionResult Filtres(int userId, int minCost, int maxCost, int minRoomCount, int maxRoomCount)
         {
@@ -85,7 +80,7 @@ namespace HomeFinder.Controllers
                 db.Add(user);
             }
 
-             db.SaveChanges();
+            db.SaveChanges();
             return Redirect($"~/Home/Index/{userId}");
         }
 
@@ -95,7 +90,7 @@ namespace HomeFinder.Controllers
         public IActionResult Addresses(int? id)
         {
             // Возвращение представления для добавления адреса
-            List<Tuple<Address, string>> addressesOK = (from address in db.Addresses where address.UserId == id select address)
+            var addressesOK = (from address in db.Addresses where address.UserId == id select address)
                 .ToList()
                 .Select((address, index) =>
                 {
@@ -111,6 +106,9 @@ namespace HomeFinder.Controllers
 
             return View();
         }
+        
+        
+        
         /// <summary>
         /// Добавление нового адреса в список удовлетворяющих пользователя адресов
         /// </summary>
@@ -118,7 +116,6 @@ namespace HomeFinder.Controllers
         /// <param name="street">Улица</param>
         /// <param name="house">Номер здания</param>
         /// <param name="building">Номер корпуса</param>
-        /// <returns></returns>
         [HttpPost]
         public async Task<IActionResult> AddAddress(int userId, string street, string house, int? building)
         {
@@ -127,19 +124,19 @@ namespace HomeFinder.Controllers
                 UserId = userId,
                 Street = street,
                 House = house, 
-                Building = (building == null) ? 0 : (int)building
+                Building = building ?? 0
             };
             db.Add(address);
             await db.SaveChangesAsync();
 
             return Redirect($"~/Home/Addresses/{userId}");
         }
+        
+        
+        
         /// <summary>
         /// Удаление адреса у пользователя userId
         /// </summary>
-        /// <param name="userId"></param>
-        /// <param name="addressId"></param>
-        /// <returns></returns>
         [HttpPost]
         public async Task<IActionResult> DeleteAddress(int userId, int addressId)
         {
@@ -151,16 +148,10 @@ namespace HomeFinder.Controllers
         }
 
 
-
-
         
-
-
         /// <summary>
         /// Получение результатов
         /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
         [HttpGet]
         public async Task<IActionResult> GoodOffers(int? id)
         {
@@ -171,6 +162,7 @@ namespace HomeFinder.Controllers
                 {
                     int p = 0;
                     // Пользователя с таким id нет.
+                    throw new Exception("User with such id not exist");
                 }
 
                 if (user.MinCost > user.MaxCost)
@@ -185,44 +177,22 @@ namespace HomeFinder.Controllers
                 }
 
                 string city = "moskva-c3584";
-
                 string url = $"https://www.domofond.ru/arenda-kvartiry-{city}?PriceFrom={user.MinCost}&PriceTo={user.MaxCost}&RentalRate=Month&Rooms=";
-                for (int i = user.MinRoomCount; i <= user.MaxRoomCount; i++)
-                {
-                    if (i == 0)
-                        url += "Studio";
-                    else if (i == 1)
-                        url += "One";
-                    else if (i == 2)
-                        url += "Two";
-                    else if (i == 3)
-                        url += "Three";
-                    else if (i == 4)
-                        url += "Four";
-                    else if (i == 5)
-                        url += "Five";
-                    else if (i == 6)
-                        url += "Six";
-                    else if (i == 7)
-                        url += "Seven";
-                    else if (i == 8)
-                        url += "Eight";
-                    else if (i == 9)
-                        url += "Nine";
 
-                    url += "%2C";
-                }
+                var rooms = new[]
+                    {"Studio", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine"};
+;               for (int i = user.MinRoomCount; i <= user.MaxRoomCount; i++)
+                    url += rooms[i] + "%2C";
+
                 url = url.Remove(url.Length - 3, 3);
 
-                List<Parsers.RentalOffer> offers = new List<Parsers.RentalOffer>();
-
+                var offers = new List<Parsers.RentalOffer>();
                 foreach (var parser in parsers)
                 {
                     offers.AddRange(await parser.ParseByUrl(url));
                 }
 
-                List<Address> addressesOK = (from address in db.Addresses where address.UserId == id select address).ToList();
-
+                var addressesOK = (from address in db.Addresses where address.UserId == id select address).ToList();
                 var goodOffers = Filtrator.Filtration(offers, addressesOK);
 
                 ViewBag.AllOffers = goodOffers;
@@ -232,9 +202,8 @@ namespace HomeFinder.Controllers
             else
             {
                 // Не указан id.
+                throw new Exception("Id not specified");
             }
-
-            return View();
         }
     }
 }

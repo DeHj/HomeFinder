@@ -18,8 +18,9 @@ namespace HomeFinder.Controllers.Parsers
 
 
 
-    public abstract class Parser
+    public interface IParser
     {
-        public abstract Task<List<RentalOffer>> ParseByUrl(string url);
+        public string Source { get; }
+        public Task<List<RentalOffer>> ParseByUrl(string url);
     }
 }

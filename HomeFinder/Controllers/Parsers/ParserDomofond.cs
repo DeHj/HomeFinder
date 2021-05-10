@@ -9,16 +9,11 @@ using AngleSharp.Dom;
 
 namespace HomeFinder.Controllers.Parsers
 {
-    public class ParserDomofond : Parser
+    public class ParserDomofond : IParser
     {
-        readonly string source;
+        public string Source { get; } = "https://www.domofond.ru";
 
-        public ParserDomofond()
-        {
-            source = "https://www.domofond.ru";
-        }
-
-        public override async Task<List<RentalOffer>> ParseByUrl(string url)
+        public async Task<List<RentalOffer>> ParseByUrl(string url)
         {
             // Формируем контент страницы:
             WebRequest request = WebRequest.Create(url);
@@ -60,18 +55,28 @@ namespace HomeFinder.Controllers.Parsers
             foreach (var oneResult in searchResults)
             {
                 string href = oneResult.GetAttribute("href");
-                string address = oneResult.QuerySelectorAll("span").Where(s => s.ClassName == "long-item-card__address___PVI5p").First().InnerHtml;
-                string description = oneResult.QuerySelectorAll("div").Where(s => s.ClassName == "description__descriptionBlock___3KWc1").First().InnerHtml;
+                string address = oneResult
+                    .QuerySelectorAll("span")
+                    .First(s => s.ClassName == "long-item-card__address___PVI5p")
+                    .InnerHtml;
+                string description = oneResult
+                    .QuerySelectorAll("div")
+                    .First(s => s.ClassName == "description__descriptionBlock___3KWc1")
+                    .InnerHtml;
 
                 description = description.Replace("&nbsp;", " ");
 
+                int end = description.IndexOf("</p>", StringComparison.Ordinal);
 
-                int end = description.IndexOf("</p>");
+                description = description
+                    .Remove(end, description.Length - end)
+                    .Remove(0, 3);
 
-
-                description = description.Remove(end, description.Length - end).Remove(0, 3);
-
-                allOffers.Add(new RentalOffer { Address = address, Description = description.Split("<br>", StringSplitOptions.RemoveEmptyEntries), Href = source + href });
+                allOffers.Add(new RentalOffer
+                {
+                    Address = address,
+                    Description = description.Split("<br>", StringSplitOptions.RemoveEmptyEntries),
+                });
             }
 
             return allOffers;

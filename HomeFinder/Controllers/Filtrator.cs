@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace HomeFinder.Controllers
 {
     public static class Filtrator
     {
-        public static string[] strAbb = { "улица", "ул.", "ул ", "ул,", "переулок", "пер.", "пер ", "пер,", "проезд", "проспект", "пр-кт" };
+        private static string[] StrAbb = { "улица", "ул.", "ул ", "ул,", "переулок", "пер.", "пер ", "пер,", "проезд", "проспект", "пр-кт" };
 
         public static List<Parsers.RentalOffer> Filtration(List<Parsers.RentalOffer> allOffers, List<Models.Address> addresses)
         {
@@ -25,8 +26,8 @@ namespace HomeFinder.Controllers
                 bool isFind = false;
                 for (int i = 0; i < blocks.Length; i++)
                 {
-                    for (int j = 0; j < strAbb.Length; j++)
-                        if (blocks[i].Contains(strAbb[j]))
+                    for (int j = 0; j < StrAbb.Length; j++)
+                        if (blocks[i].Contains(StrAbb[j]))
                         {
                             indexJ = j; isFind = true; break;
                         }
@@ -34,7 +35,7 @@ namespace HomeFinder.Controllers
                     if (isFind)
                     {
                         indexI = i;
-                        offerStreet = blocks[i].Replace(strAbb[indexJ], "").Trim();
+                        offerStreet = blocks[i].Replace(StrAbb[indexJ], "").Trim();
                         break;
                     }
                 }
@@ -75,13 +76,9 @@ namespace HomeFinder.Controllers
                 // Получили все необходимые данные, ищем подходящие адреса:
                 foreach (var address in addresses)
                 {
-                    string street = address.Street.ToLower().Trim();
-                    string house = address.House.ToLower().Trim();
-                    int building = address.Building;
-
-                    if (street == offerStreet
-                        && house == offerHouse
-                        && building == offerBuilding)
+                    if (address.Street.ToLower().Trim() == offerStreet
+                        && address.House.ToLower().Trim() == offerHouse
+                        && address.Building == offerBuilding)
                     {
                         // Данное предложение подходит!
                         result.Add(offer);
